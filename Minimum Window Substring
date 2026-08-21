@@ -1,0 +1,48 @@
+#include <string.h>
+#include <limits.h> 
+char* minWindow(char* s, char* t) {
+    if (!s || !t || *s == '\0' || *t == '\0') return "";
+    int target_counts[128] = {0};
+    int window_counts[128] = {0};
+    int t_len = 0;
+    while (t[t_len] != '\0') {
+        target_counts[(unsigned char)t[t_len]]++;
+        t_len++;
+    }
+    int required = 0;
+    for (int i = 0; i < 128; i++) {
+        if (target_counts[i] > 0) {
+            required++;
+        }
+    }
+    int left = 0, right = 0;
+    int formed = 0;
+    int min_len = INT_MAX;
+    int start_idx = 0;
+    int s_len = strlen(s);
+    while (right < s_len) {
+        unsigned char c = s[right];
+        window_counts[c]++;
+        if (target_counts[c] > 0 && window_counts[c] == target_counts[c]) {
+            formed++;
+        }
+        while (left <= right && formed == required) {
+            unsigned char left_c = s[left];
+            if (right - left + 1 < min_len) {
+                min_len = right - left + 1;
+                start_idx = left;
+            }
+            window_counts[left_c]--;
+            if (target_counts[left_c] > 0 && window_counts[left_c] < target_counts[left_c]) {
+                formed--;
+            }
+            left++;
+        }
+        right++;
+    }
+    if (min_len == INT_MAX) {
+        return "";
+    }
+    s[start_idx + min_len] = '\0';
+    return &s[start_idx];
+}
