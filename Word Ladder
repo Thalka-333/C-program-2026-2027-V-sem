@@ -1,0 +1,51 @@
+#include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
+typedef struct {
+    char word[12]; 
+    int level;
+} QueueNode;
+int ladderLength(char* beginWord, char* endWord, char** wordList, int wordListSize) {
+    int wordLen = strlen(beginWord);
+    bool endWordExists = false;
+    for (int i = 0; i < wordListSize; i++) {
+        if (strcmp(wordList[i], endWord) == 0) {
+            endWordExists = true;
+            break;
+        }
+    }
+    if (!endWordExists) return 0;
+    bool* visited = (bool*)calloc(wordListSize, sizeof(bool));
+    QueueNode* queue = (QueueNode*)malloc((wordListSize + 1) * sizeof(QueueNode));
+    int head = 0, tail = 0;
+    strcpy(queue[tail].word, beginWord);
+    queue[tail].level = 1;
+    tail++;
+    while (head < tail) {
+        QueueNode curr = queue[head++];
+        if (strcmp(curr.word, endWord) == 0) {
+            free(visited);
+            free(queue);
+            return curr.level;
+        }
+        for (int i = 0; i < wordListSize; i++) {
+            if (visited[i]) continue;
+            int diff_count = 0;
+            for (int j = 0; j < wordLen; j++) {
+                if (curr.word[j] != wordList[i][j]) {
+                    diff_count++;
+                    if (diff_count > 1) break; 
+                }
+            }
+            if (diff_count == 1) {
+                visited[i] = true;
+                strcpy(queue[tail].word, wordList[i]);
+                queue[tail].level = curr.level + 1;
+                tail++;
+            }
+        }
+    }
+    free(visited);
+    free(queue);
+    return 0;
+}
